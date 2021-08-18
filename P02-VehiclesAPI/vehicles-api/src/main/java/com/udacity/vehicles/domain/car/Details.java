@@ -10,6 +10,10 @@ import javax.validation.constraints.NotNull;
  * Declares the additional detail variables for each Car object,
  * along with related methods for access and setting.
  */
+
+/**
+ * JPA provides the @Embeddable annotation to declare that a class will be embedded by other entities.
+ */
 @Embeddable
 public class Details {
 

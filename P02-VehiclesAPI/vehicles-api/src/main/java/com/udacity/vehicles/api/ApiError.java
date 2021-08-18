@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Declares methods to return errors and other messages from the API.
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL) //null fields of response body won't be included in the output
 class ApiError {
 
     private final String message;

@@ -38,6 +38,16 @@ public class Car {
     @Enumerated(EnumType.STRING)
     private Condition condition;
 
+    /**
+     * When Spring Boot finds an argument annotated with @Valid,
+     * it automatically bootstraps the default JSR 380 implementation — Hibernate Validator — and validates the argument.
+     * When the target argument fails to pass the validation,
+     * Spring Boot throws a MethodArgumentNotValidException exception.
+     *
+     *
+     * The JPA annotation @Embedded is used to embed a type into another entity.
+     * As a result, we have our entity Car, embedding Details, and mapping to a single database table.
+     */
     @Valid
     @Embedded
     private Details details = new Details();
