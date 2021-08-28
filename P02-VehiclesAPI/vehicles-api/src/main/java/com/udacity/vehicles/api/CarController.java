@@ -12,8 +12,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +36,7 @@ class CarController {
     private final CarService carService;
     private final CarResourceAssembler assembler;
 
+    @Autowired
     CarController(CarService carService, CarResourceAssembler assembler) {
         this.carService = carService;
         this.assembler = assembler;
@@ -43,12 +46,20 @@ class CarController {
      * Creates a list to store any vehicles.
      * @return list of vehicles
      */
+
+//    List<Resource<Car>> resources = carService.list().stream().map(assembler::toResource)
+//            .collect(Collectors.toList());
+//        return new Resources<>(resources,
+//    linkTo(methodOn(CarController.class).list()).withSelfRel());
+
     @GetMapping
-    Resources<Resource<Car>> list() {
+    ResponseEntity<Resources<Resource<Car>>> list() {
         List<Resource<Car>> resources = carService.list().stream().map(assembler::toResource)
                 .collect(Collectors.toList());
-        return new Resources<>(resources,
+        Resources<Resource<Car>> resources1 = new Resources<>(resources,
                 linkTo(methodOn(CarController.class).list()).withSelfRel());
+
+        return new ResponseEntity<>(resources1,HttpStatus.OK);
     }
 
     /**
@@ -63,6 +74,9 @@ class CarController {
          * TODO: Use the `assembler` on that car and return the resulting output.
          *   Update the first line as part of the above implementing.
          */
+
+
+
         return assembler.toResource(new Car());
     }
 
@@ -79,7 +93,8 @@ class CarController {
          * TODO: Use the `assembler` on that saved car and return as part of the response.
          *   Update the first line as part of the above implementing.
          */
-        Resource<Car> resource = assembler.toResource(new Car());
+        carService.save(car);
+        Resource<Car> resource = assembler.toResource(car);
         return ResponseEntity.created(new URI(resource.getId().expand().getHref())).body(resource);
     }
 
