@@ -28,6 +28,7 @@ import reactor.core.publisher.Mono;
 public class CarService {
 
     private final CarRepository repository;
+
     private final PriceClient priceClient;
     private final MapsClient mapsClient;
     private final WebClient mapsClientAddress;
@@ -75,13 +76,8 @@ public class CarService {
          * Note: The car class file uses @transient, meaning you will need to call
          *   the pricing service each time to get the price.
          */
-        String price = priceClient.getPrice(foundCar.getId());
+        String price = priceClient.getPrice(id);
         foundCar.setPrice(price);
-
-//        WebClient.UriSpec<WebClient.RequestBodySpec> uriSpec = webClientMaps.method(HttpMethod.GET);
-//        WebClient.RequestBodySpec bodySpec = uriSpec.uri(
-//                uriBuilder -> uriBuilder.pathSegment("/price").build()
-//        );
 
         /**
          * TODO: Use the Maps Web client you create in `VehiclesApiApplication`
@@ -104,6 +100,7 @@ public class CarService {
                 .bodyToMono(Address.class)
                 .block();
         assert address != null;
+
         foundCar.getLocation().setAddress(address.getAddress());
         foundCar.getLocation().setCity(address.getCity());
         foundCar.getLocation().setState(address.getState());
