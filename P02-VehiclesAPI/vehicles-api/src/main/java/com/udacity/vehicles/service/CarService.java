@@ -10,6 +10,7 @@ import com.udacity.vehicles.domain.car.Car;
 import com.udacity.vehicles.domain.car.CarRepository;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -50,7 +51,34 @@ public class CarService {
      * @return a list of all vehicles in the CarRepository
      */
     public List<Car> list() {
-        return repository.findAll();
+        List<Car> carList = repository.findAll();
+
+        //Getting and setting price and address details of each car in a list
+        List<Car> newCarList = carList
+                .stream()
+                .map(car -> {
+                    car.setPrice(priceClient.getPrice(car.getId()));
+                    Location location = car.getLocation();
+                    Location foundLocation = mapsClient.getAddress(location);
+                    car.setLocation(foundLocation);
+
+                    Address address = mapsClientAddress.method(HttpMethod.GET) //.get()
+                            .uri("http://localhost:9191/maps?lat="+car.getLocation().getLat() + "&lon="+ car.getLocation().getLon())
+                            .retrieve()
+                            .bodyToMono(Address.class)
+                            .block();
+                    assert address != null;
+
+                    car.getLocation().setAddress(address.getAddress());
+                    car.getLocation().setCity(address.getCity());
+                    car.getLocation().setState(address.getState());
+                    car.getLocation().setZip(address.getZip());
+
+                    return car;
+                })
+                .collect(Collectors.toList());
+
+        return newCarList;
     }
 
     /**
@@ -120,7 +148,7 @@ public class CarService {
                     .map(carToBeUpdated -> {
                         carToBeUpdated.setDetails(car.getDetails());
                         carToBeUpdated.setLocation(car.getLocation());
-                        carToBeUpdated.setLocation(car.getLocation());
+                        carToBeUpdated.setCondition(car.getCondition());
                         return repository.save(carToBeUpdated);
                     }).orElseThrow(CarNotFoundException::new);
         }
