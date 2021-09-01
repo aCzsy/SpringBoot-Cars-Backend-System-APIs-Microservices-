@@ -100,10 +100,11 @@ public class CarControllerTest {
          *   the whole list of vehicles. This should utilize the car from `getCar()`
          *   below (the vehicle will be the first in the list).
          */
-
+        Car car = getCar();
         mvc.perform(get("/cars")) //simulates HTTP request
                 .andExpect(status().isOk())
-                .andExpect(content().json("[]"));
+                .andExpect(jsonPath("$._embedded.carList[0].details.manufacturer.name",is(car.getDetails().getManufacturer().getName())))
+                .andExpect(jsonPath("$._embedded.carList[0].details.model", is(car.getDetails().getModel())));
 
         verify(carService, times(1)).list();
     }
@@ -183,6 +184,27 @@ public class CarControllerTest {
         details.setModelYear(2018);
         details.setProductionYear(2018);
         details.setNumberOfDoors(4);
+        car.setDetails(details);
+        car.setCondition(Condition.USED);
+        return car;
+    }
+
+    private Car addCarToList(){
+        Car car = new Car();
+        car.setId(2L);
+        car.setLocation(new Location(30.730610, -53.935242));
+        Details details = new Details();
+        Manufacturer manufacturer = new Manufacturer(150, "BMW");
+        details.setManufacturer(manufacturer);
+        details.setModel("3 Series");
+        details.setMileage(150000);
+        details.setExternalColor("black");
+        details.setBody("coupe");
+        details.setEngine("3.0");
+        details.setFuelType("Diesel");
+        details.setModelYear(2005);
+        details.setProductionYear(2005);
+        details.setNumberOfDoors(2);
         car.setDetails(details);
         car.setCondition(Condition.USED);
         return car;
